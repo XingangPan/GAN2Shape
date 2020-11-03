@@ -11,6 +11,7 @@
 > *arXiv preprint arXiv:2011.00844*
 
 [[Paper](https://arxiv.org/abs/2011.00844)]
+[[Project Page](https://xingangpan.github.io/projects/GAN2Shape.html)]
 
 In this repository, we present **GAN2Shape**, which reconstructs the 3D shape of an image using off-the-shelf 2D image GANs in an unsupervised manner.
 Our method **does not rely on mannual annotations or external 3D models**, yet it achieves high-quality 3D reconstruction, object rotation, and relighting effects.
