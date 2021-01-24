@@ -21,10 +21,10 @@ Due to some conflicts in my personal schedule, the expected code release date is
 ## BibTeX
 
 ```bibtex
-@article{pan2020gan2shape,
+@inproceedings{pan2020gan2shape,
   title   = {Do 2D GANs Know 3D Shape? Unsupervised 3D Shape Reconstruction from 2D Image GANs},
   author  =  {Pan, Xingang and Dai, Bo and Liu, Ziwei and Loy, Chen Change and Luo, Ping},
-  journal = {arXiv preprint arXiv:2011.00844},
-  year    = {2020}
+  booktitle = {ICLR},
+  year    = {2021}
 }
 ```
