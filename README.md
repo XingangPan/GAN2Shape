@@ -16,7 +16,7 @@
 In this repository, we present **GAN2Shape**, which reconstructs the 3D shape of an image using off-the-shelf 2D image GANs in an unsupervised manner.
 Our method **does not rely on mannual annotations or external 3D models**, yet it achieves high-quality 3D reconstruction, object rotation, and relighting effects.
 
-Due to some conflicts in my personal schedule, the expected code release date is postponed to 19, Feb. Sorry about this and thanks for your patience.
+Due to some conflicts in my personal schedule, the expected code release date is postponed to 21, Feb. Sorry about this and thanks for your patience.
 
 ## BibTeX
 
