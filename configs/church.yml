@@ -1,0 +1,64 @@
+## train church
+## trainer
+checkpoint_dir: results/church
+save_checkpoint_freq: 500
+keep_num_checkpoint: 2
+use_logger: true
+log_freq: 100
+joint_train: false  # true: joint train on multiple images
+independent: false  # true: each process has a different input image
+reset_weight: true  # true: reset model weights after each epoch
+save_results: true
+num_stage: 4
+flip1_cfg: [false, false, false, false]
+flip3_cfg: [false, false, false, false]
+stage_len_dict:
+    step1: 700
+    step2: 700  # 750
+    step3: 600  # 1000
+stage_len_dict2:
+    step1: 200
+    step2: 500
+    step3: 400
+
+## data
+image_size: 128
+load_gt_depth: false
+img_list_path: data/church/list.txt
+img_root: data/church
+latent_root: data/church/latents
+
+## model
+model_name: gan2shape_church
+category: church
+share_weight: true  # true: share weight in distributed training
+relative_enc: false  # true: use relative latent offset
+use_mask: true
+add_mean_L: true
+add_mean_V: true
+min_depth: 0.9
+max_depth: 1.1
+prior_near: 0.91
+prior_far: 1.0
+xyz_rotation_range: 60  # (-r,r) in degrees
+xy_translation_range: 0.1  # (-t,t) in 3D
+z_translation_range: 0  # (-t,t) in 3D
+collect_iters: 100
+batchsize: 8
+lr: 0.0001
+lam_perc: 0.5
+lam_smooth: 0.01
+lam_regular: 0.01
+view_mvn_path: checkpoints/view_light/view_mvn.pth
+light_mvn_path: checkpoints/view_light/light_mvn.pth
+
+## GAN
+channel_multiplier: 2
+gan_size: 256
+gan_ckpt: checkpoints/stylegan2/stylegan2-church-config-f.pt
+F1_d: 2  # number of mapping network layers used to regularize the latent offset
+
+## renderer
+rot_center_depth: 1.0
+fov: 10  # in degrees
+tex_cube_size: 2

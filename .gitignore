@@ -1,0 +1,16 @@
+__pycache__
+data/*/
+results
+checkpoints
+*.zip
+*.pth
+*.pt
+*.swp
+*.pyc
+*.tar
+*.npy
+*.png
+*.jpg
+*.o
+*.so
+*.tar.gz

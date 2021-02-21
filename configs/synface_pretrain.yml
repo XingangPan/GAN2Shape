@@ -1,0 +1,64 @@
+## train synface
+## trainer
+checkpoint_dir: results/synface_pretrain
+save_checkpoint_freq: 2000
+keep_num_checkpoint: 10
+use_logger: true
+log_freq: 100
+joint_train: true  # true: joint train on multiple images
+independent: true  # true: each process has a different input image
+reset_weight: false  # true: reset model weights after each epoch
+save_results: false
+num_stage: 8
+flip1_cfg: [false, true, true, true, true, true, true, true]
+flip3_cfg: [true, true, true, true, true, true, true, true]
+stage_len_dict:
+    step1: 1500
+    step2: 1500
+    step3: 1500
+stage_len_dict2:
+    step1: 700
+    step2: 1000
+    step3: 1000
+
+## dataloader
+image_size: 64
+crop: 170
+load_gt_depth: true
+img_list_path: data/synface/train/list_200.txt
+img_root: data/synface/train/image
+latent_root: data/synface/train/latents
+
+## model
+model_name: gan2shape_synface
+category: synface
+share_weight: true  # true: share weight in distributed training
+relative_enc: true  # true: use relative latent offset
+use_mask: false
+add_mean_L: true
+add_mean_V: true
+min_depth: 0.9
+max_depth: 1.1
+xyz_rotation_range: 60  # (-r,r) in degrees
+xy_translation_range: 0.1  # (-t,t) in 3D
+z_translation_range: 0  # (-t,t) in 3D
+view_scale: 1.2  # enlarge viewpoint variation
+collect_iters: 1000
+batchsize: 12  # if run on 8 processes, the total batchsize would be 12x8=96
+lr: 0.0001
+lam_perc: 0.5
+lam_smooth: 0.01
+lam_regular: 0.01
+view_mvn_path: checkpoints/view_light/synface_view_mvn.pth
+light_mvn_path: checkpoints/view_light/synface_light_mvn.pth
+
+## GAN
+channel_multiplier: 1
+gan_size: 128
+gan_ckpt: checkpoints/stylegan2/stylegan2-synface-config-e.pt
+F1_d: 8  # number of mapping network layers used to regularize the latent offset
+
+## renderer
+rot_center_depth: 1.0
+fov: 10  # in degrees
+tex_cube_size: 2
