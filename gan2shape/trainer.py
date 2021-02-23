@@ -77,7 +77,7 @@ class Trainer():
                                     self.depth_list[epoch] if self.load_gt_depth else None,
                                     self.latent_list[epoch])
 
-    def setup_mode(self, iteration):
+    def setup_mode(self):
         stage_len_dict = self.stage_len_dict if self.current_stage == 0 else self.stage_len_dict2
         if self.count >= stage_len_dict[self.model.mode]:
             if (self.independent or self.rank == 0) and self.save_results:
@@ -159,7 +159,7 @@ class Trainer():
             self.metrics.reset()
             i = 0
             while(True):
-                state = self.setup_mode(i)
+                state = self.setup_mode()
                 if state < 0:
                     metrics_all.update(m, 1)
                     if self.rank == 0:
