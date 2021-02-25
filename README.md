@@ -42,6 +42,13 @@ sh scripts/download.sh
 
 ## Training
 
+Before training, you may optionally compile StyleGAN2 operations, which would be faster:
+```sh
+cd gan2shape/stylegan/stylegan2-pytorch/op
+python setup.py install
+cd ../../../..
+```
+
 **Example1**: training on car images:
 ```sh
 sh scripts/run_car.sh
