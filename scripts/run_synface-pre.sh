@@ -1,4 +1,4 @@
-EXP=synface_pretrain_stage8
+EXP=synface_pretrain
 CONFIG=synface_pretrain
 GPUS=8
 PORT=${PORT:-29579}

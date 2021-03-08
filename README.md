@@ -53,7 +53,7 @@ cd ../../../..
 ```sh
 sh scripts/run_car.sh
 ```
-You can view the results at `results/car/images` or Tensorboard.
+This would run on 4 GPUs by default. You can view the results at `results/car/images` or Tensorboard.
 
 **Example2**: training on Celeba images:
 ```sh

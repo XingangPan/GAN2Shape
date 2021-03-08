@@ -56,6 +56,7 @@ class GAN2Shape():
         self.z_translation_range = cfgs.get('z_translation_range', 0.1)
         self.view_scale = cfgs.get('view_scale', 1.0)
         self.collect_iters = cfgs.get('collect_iters', 100)
+        self.rand_light = cfgs.get('rand_light', [-1,1,-0.2,0.8,-0.1,0.6,-0.6])
         # optimization parameters
         self.batchsize = cfgs.get('batchsize', 8)
         self.lr = cfgs.get('lr', 1e-4)
@@ -341,7 +342,7 @@ class GAN2Shape():
     def init_VL_sampler(self):
         from torch.distributions.multivariate_normal import MultivariateNormal as MVN
         view_mvn_path = self.cfgs.get('view_mvn_path', 'checkpoints/view_light/view_mvn.pth')
-        light_mvn_path = self.cfgs.get('light_mvn_path', 'checkpoints/view_light/view_light.pth')
+        light_mvn_path = self.cfgs.get('light_mvn_path', 'checkpoints/view_light/light_mvn.pth')
         view_mvn = torch.load(view_mvn_path)
         light_mvn = torch.load(light_mvn_path)
         self.view_mean = view_mvn['mean'].cuda()
@@ -749,15 +750,16 @@ class GAN2Shape():
 
         # random lighting conditions
         # here we do not use self.sample_view_light, but use uniform distributions instead
+        x_min, x_max, y_min, y_max, diffuse_min, diffuse_max, alpha = self.rand_light
         rand_light_dxy = torch.FloatTensor(b,2).cuda()
-        rand_light_dxy[:,0].uniform_(-1, 1)
-        rand_light_dxy[:,1].uniform_(-0.2, 0.8)
+        rand_light_dxy[:,0].uniform_(x_min, x_max)
+        rand_light_dxy[:,1].uniform_(y_min, y_max)
         rand_light_d = torch.cat([rand_light_dxy, torch.ones(b,1).cuda()], 1)
         rand_light_d = rand_light_d / ((rand_light_d**2).sum(1, keepdim=True))**0.5
         rand_diffuse_shading = (self.normal[0,None] * rand_light_d.view(-1,1,1,3)).sum(3).clamp(min=0).unsqueeze(1)
-        rand = torch.FloatTensor(b,1,1,1).cuda().uniform_(-0.1, 0.6)
+        rand = torch.FloatTensor(b,1,1,1).cuda().uniform_(diffuse_min, diffuse_max)
         rand_diffuse = (self.light_b[0,None].view(-1,1,1,1) + rand) * rand_diffuse_shading
-        rand_shading = self.light_a[0,None].view(-1,1,1,1) - 0.6 * rand + rand_diffuse
+        rand_shading = self.light_a[0,None].view(-1,1,1,1) + alpha * rand + rand_diffuse
         rand_light_im = (self.albedo[0,None]/2+0.5) * rand_shading * 2 - 1
 
         depth = self.depth[0,None]

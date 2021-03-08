@@ -51,6 +51,7 @@ lam_smooth: 0.01
 lam_regular: 0.01
 view_mvn_path: checkpoints/view_light/synface_view_mvn.pth
 light_mvn_path: checkpoints/view_light/synface_light_mvn.pth
+rand_light: [-0.9,0.9,-0.3,0.8,-0.1,0.7,-0.4]
 
 ## GAN
 channel_multiplier: 1
