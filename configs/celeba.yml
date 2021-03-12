@@ -51,6 +51,7 @@ lam_regular: 0.01
 pretrain: checkpoints/gan2shape/celeba_pretrain.pth
 view_mvn_path: checkpoints/view_light/celeba_view_mvn.pth
 light_mvn_path: checkpoints/view_light/celeba_light_mvn.pth
+rand_light: [-1,1,-0.2,0.8,-0.1,0.6,-0.6]
 
 ## GAN
 channel_multiplier: 1
