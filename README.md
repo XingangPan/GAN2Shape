@@ -84,7 +84,8 @@ sh scripts/run_sample.sh
 
 ## Acknowledgement
 
-Part of the code is borrowed from [Unsup3d](https://github.com/elliottwu/unsup3d) and [StyleGAN2](https://github.com/rosinality/stylegan2-pytorch).
+Part of the code is borrowed from [Unsup3d](https://github.com/elliottwu/unsup3d) and [StyleGAN2](https://github.com/rosinality/stylegan2-pytorch).  
+Colab demo reproduced by [ucalyptus](https://github.com/ucalyptus): [Link](https://colab.research.google.com/drive/124D_f0RIu7Bbwa1SFV6pmvmBrNkB8Ow_?usp=sharing)
 
 ## BibTeX
 
