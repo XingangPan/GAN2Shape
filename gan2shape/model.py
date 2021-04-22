@@ -86,7 +86,7 @@ class GAN2Shape():
             lr=self.lr, betas=(0.9, 0.999), weight_decay=5e-4)
 
         self.PerceptualLoss = PerceptualLoss(
-            model='net-lin', net='vgg', use_gpu=True, gpu_ids=[self.rank]
+            model='net-lin', net='vgg', use_gpu=True, gpu_ids=[torch.device(self.rank)]
         )
         self.d_loss = DiscriminatorLoss(ftr_num=4)
         self.renderer = Renderer(cfgs, self.image_size)
@@ -167,7 +167,6 @@ class GAN2Shape():
             if self.crop is not None:
                 depth_gt = transforms.CenterCrop(self.crop)(depth_gt)
             depth_gt = transform(depth_gt).cuda()
-            depth_gt = utils.resize(depth_gt, [self.image_size, self.image_size])
             depth_gt = (1 - depth_gt) * 2 - 1
             depth_gt = self.depth_rescaler(depth_gt)
             return depth_gt
@@ -638,9 +637,9 @@ class GAN2Shape():
             self.proj_imgs = []
             self.masks = []
 
-        if self.rank == 0:
-            print("Collecting projected samples ...")
         for i in range(self.collect_iters):
+            if self.rank == 0 and i % 100 == 0:
+                print(f"Collecting {i}/{self.collect_iters} samples ...")
             with torch.no_grad():
                 self.forward_step2()
             if self.joint_train:

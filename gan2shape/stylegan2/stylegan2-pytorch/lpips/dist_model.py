@@ -64,6 +64,8 @@ class DistModel(BaseModel):
             kw = {}
             if not use_gpu:
                 kw['map_location'] = 'cpu'
+            else:
+                kw['map_location'] = self.gpu_ids[0]
             if(model_path is None):
                 import inspect
                 model_path = os.path.abspath(os.path.join(inspect.getfile(self.initialize), '..', 'weights/v%s/%s.pth'%(version,net)))
