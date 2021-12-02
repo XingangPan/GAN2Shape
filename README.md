@@ -93,7 +93,7 @@ Colab demo reproduced by [ucalyptus](https://github.com/ucalyptus): [Link](https
 @inproceedings{pan2020gan2shape,
   title   = {Do 2D GANs Know 3D Shape? Unsupervised 3D Shape Reconstruction from 2D Image GANs},
   author  =  {Pan, Xingang and Dai, Bo and Liu, Ziwei and Loy, Chen Change and Luo, Ping},
-  booktitle = {ICLR},
+  booktitle = {International Conference on Learning Representations},
   year    = {2021}
 }
 ```
