@@ -902,6 +902,25 @@ class GAN2Shape():
                 albedo2 = nn.functional.grid_sample(self.albedo[0,None], self.grid_2d_from_canon[0,None], mode='bilinear').clamp(min=-1, max=1)
                 albedo2[albedo2==0] = 1
                 save_img(albedo2/2+0.5, root, 'albedo2', last_only=True)
+            # save mesh
+            vertices = self.depth_to_3d_grid(depth)  # BxHxWx3
+            normal = self.renderer.get_normal_from_depth(depth)
+            self.objs, self.mtls = utils.export_to_obj_string(vertices, normal)
+            torchvision.utils.save_image(texture/2+0.5, f'{root}/{img_name}_canonical_image.png', nrow=1)
+            with open(os.path.join(root, f'{img_name}_mesh.mtl'), "w") as f:
+                f.write(self.mtls[0].replace('$TXTFILE', f'./{img_name}_canonical_image.png'))
+            with open(os.path.join(root, f'{img_name}_mesh.obj'), "w") as f:
+                f.write(self.objs[0].replace('$MTLFILE', f'./{img_name}_mesh.mtl'))
+
+    def depth_to_3d_grid(self, depth, inv_K=None):
+        if inv_K is None:
+            inv_K = self.renderer.inv_K
+        b, h, w = depth.shape
+        grid_2d = utils.get_grid(b, h, w, normalize=False).to(depth.device)  # Nxhxwx2
+        depth = depth.unsqueeze(-1)
+        grid_3d = torch.cat((grid_2d, torch.ones_like(depth)), dim=3)
+        grid_3d = grid_3d.matmul(inv_K.transpose(2,1)) * depth
+        return grid_3d
 
     def visualize_results(self, logger, iteration):
         b = 1 if self.mode == 'step1' else self.batchsize

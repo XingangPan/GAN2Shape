@@ -5,6 +5,7 @@ import random
 import numpy as np
 
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 
 
@@ -144,3 +145,72 @@ def get_mask_range(mask):
     max_x = torch.max(grid[1, mask])
     min_x = torch.min(grid[1, mask])
     return max_y, min_y, max_x, min_x
+
+
+def get_grid(b, H, W, normalize=True):
+    if normalize:
+        h_range = torch.linspace(-1,1,H)
+        w_range = torch.linspace(-1,1,W)
+    else:
+        h_range = torch.arange(0,H)
+        w_range = torch.arange(0,W)
+    grid = torch.stack(torch.meshgrid([h_range, w_range]), -1).repeat(b,1,1,1).flip(3).float() # flip h,w to x,y
+    return grid
+
+
+def export_to_obj_string(vertices, normal):
+    b, h, w, _ = vertices.shape
+    vertices[:,:,:,1:2] = -1*vertices[:,:,:,1:2]  # flip y
+    vertices[:,:,:,2:3] = 1-vertices[:,:,:,2:3]  # flip and shift z
+    vertices *= 100
+    vertices_center = nn.functional.avg_pool2d(vertices.permute(0,3,1,2), 2, stride=1).permute(0,2,3,1)
+    vertices = torch.cat([vertices.view(b,h*w,3), vertices_center.view(b,(h-1)*(w-1),3)], 1)
+
+    vertice_textures = get_grid(b, h, w, normalize=True)  # BxHxWx2
+    vertice_textures[:,:,:,1:2] = -1*vertice_textures[:,:,:,1:2]  # flip y
+    vertice_textures_center = nn.functional.avg_pool2d(vertice_textures.permute(0,3,1,2), 2, stride=1).permute(0,2,3,1)
+    vertice_textures = torch.cat([vertice_textures.view(b,h*w,2), vertice_textures_center.view(b,(h-1)*(w-1),2)], 1) /2+0.5  # Bx(H*W)x2, [0,1]
+
+    vertice_normals = normal.clone()
+    vertice_normals[:,:,:,0:1] = -1*vertice_normals[:,:,:,0:1]
+    vertice_normals_center = nn.functional.avg_pool2d(vertice_normals.permute(0,3,1,2), 2, stride=1).permute(0,2,3,1)
+    vertice_normals_center = vertice_normals_center / (vertice_normals_center**2).sum(3, keepdim=True)**0.5
+    vertice_normals = torch.cat([vertice_normals.view(b,h*w,3), vertice_normals_center.view(b,(h-1)*(w-1),3)], 1)  # Bx(H*W)x2, [0,1]
+
+    idx_map = torch.arange(h*w).reshape(h,w)
+    idx_map_center = torch.arange((h-1)*(w-1)).reshape(h-1,w-1)
+    faces1 = torch.stack([idx_map[:h-1,:w-1], idx_map[1:,:w-1], idx_map_center+h*w], -1).reshape(-1,3).repeat(b,1,1).int()  # Bx((H-1)*(W-1))x4
+    faces2 = torch.stack([idx_map[1:,:w-1], idx_map[1:,1:], idx_map_center+h*w], -1).reshape(-1,3).repeat(b,1,1).int()  # Bx((H-1)*(W-1))x4
+    faces3 = torch.stack([idx_map[1:,1:], idx_map[:h-1,1:], idx_map_center+h*w], -1).reshape(-1,3).repeat(b,1,1).int()  # Bx((H-1)*(W-1))x4
+    faces4 = torch.stack([idx_map[:h-1,1:], idx_map[:h-1,:w-1], idx_map_center+h*w], -1).reshape(-1,3).repeat(b,1,1).int()  # Bx((H-1)*(W-1))x4
+    faces = torch.cat([faces1, faces2, faces3, faces4], 1)
+
+    objs = []
+    mtls = []
+    for bi in range(b):
+        obj = "# OBJ File:"
+        obj += "\n\nmtllib $MTLFILE"
+        obj += "\n\n# vertices:"
+        for v in vertices[bi]:
+            obj += "\nv " + " ".join(["%.4f"%x for x in v])
+        obj += "\n\n# vertice textures:"
+        for vt in vertice_textures[bi]:
+            obj += "\nvt " + " ".join(["%.4f"%x for x in vt])
+        obj += "\n\n# vertice normals:"
+        for vn in vertice_normals[bi]:
+            obj += "\nvn " + " ".join(["%.4f"%x for x in vn])
+        obj += "\n\n# faces:"
+        obj += "\n\nusemtl tex"
+        for f in faces[bi]:
+            obj += "\nf " + " ".join(["%d/%d/%d"%(x+1,x+1,x+1) for x in f])
+        objs += [obj]
+
+        mtl = "newmtl tex"
+        mtl += "\nKa 1.0000 1.0000 1.0000"
+        mtl += "\nKd 1.0000 1.0000 1.0000"
+        mtl += "\nKs 0.0000 0.0000 0.0000"
+        mtl += "\nd 1.0"
+        mtl += "\nillum 0"
+        mtl += "\nmap_Kd $TXTFILE"
+        mtls += [mtl]
+    return objs, mtls
